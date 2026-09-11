@@ -8,8 +8,11 @@ import QtQuick3D 6.7
 
 // Read Brain view
 Rectangle {
+    id: root
     property string selectedModel: "Random Forest"
     property string currentFramework: "PyTorch"
+    property string selectedHeadset: "OpenBCI"
+    property string neurosityStatus: "Offline"
     color: "#718399"
     Layout.fillWidth: true
     Layout.fillHeight: true
@@ -285,6 +288,9 @@ Rectangle {
                     var timestamp = new Date().toLocaleString()
                     consoleLog.append(message + " at " + timestamp)
                 }
+                function onNeurosityStatusChanged(status) {
+                    neurosityStatus = status
+                }
             }
         }
 
@@ -422,7 +428,7 @@ Rectangle {
                         id: consoleLog
                         wrapMode: Text.WrapAnywhere
                         readOnly: true
-                        font.pixelSize: parent.width * 0.025
+                        font.pixelSize: 14
                         color: "black"
                         background: Rectangle { color: "white" }
                     }
@@ -437,8 +443,8 @@ Rectangle {
 
             // Model Selection Buttons in dark box
             Rectangle {
-                width: parent.width * 0.9
-                height: parent.height * 0.18
+                width: parent.width * 0.95
+                height: parent.height * 0.25
                 color: "#2c3e50"
                 
                 Column {
@@ -449,7 +455,7 @@ Rectangle {
                     // Model Selection Row
                     Row {
                         width: parent.width
-                        height: (parent.height - parent.spacing) * 0.5
+                        height: (parent.height - parent.spacing * 2) / 3
                         spacing: parent.width * 0.02
                         
                         Rectangle {
@@ -534,7 +540,7 @@ Rectangle {
                     // Framework Selection Row
                     Row {
                         width: parent.width
-                        height: (parent.height - parent.spacing) * 0.5
+                        height: (parent.height - parent.spacing * 2) / 3
                         spacing: parent.width * 0.02
                         
                         Rectangle {
@@ -611,9 +617,73 @@ Rectangle {
                                 }
                             }
                         }
+                        
+                    }
+
+            //Headset select row
+            Row{
+                width: parent.width
+                height: (parent.height - parent.spacing * 2) / 3
+                spacing: parent.width * 0.02
+
+                Rectangle {
+                    width: (parent.width - parent.spacing ) / 2
+                    height: parent.height
+                    color: "#2d7a4a"
+                    radius: 5
+                    border.color: selectedHeadset === "OpenBCI" ? "yellow" : "#4a9d6f"
+                    border.width: selectedHeadset === "OpenBCI" ? 3 : 1
+
+                    Text {
+                        text: "OpenBCI"
+                        font.pixelSize: parent.height * 0.3
+                        font.bold: true
+                        color: selectedHeadset === "OpenBCI" ? "yellow" : "white"
+                        anchors.centerIn: parent
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            selectedHeadset = "OpenBCI"
+                            backend.setBCISource("openbci")
+                            
+                        }
                     }
                 }
-            }
+
+                Rectangle {
+                    width: (parent.width - parent.spacing ) / 2 
+                    height: parent.height
+                    color: "#2d7a4a"
+                    radius: 5
+                    border.color: selectedHeadset === "Neurosity" ? "yellow" : "#4a9d6f"
+                    border.width: selectedHeadset === "Neurosity" ? 3 : 1
+
+                    Text {
+                        text: "Neurosity(" + neurosityStatus + ")"
+                        font.pixelSize: parent.height * 0.3
+                        font.bold: true
+                        color: selectedHeadset === "Neurosity" ? "yellow" : "white"
+                        anchors.centerIn: parent
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                        selectedHeadset = "Neurosity"
+                        backend.setBCISource("neurosity")
+                        
+                        }
+                    }
+                }
+
+                    }
+
+
+
+                }
+            }          
         }
     }
 
@@ -689,5 +759,9 @@ Rectangle {
             }
             onClicked: backend.setDataMode("synthetic")
         }
+         
     }
+    
+
+   
 }
